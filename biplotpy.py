@@ -17,3 +17,4 @@ class biplotpy:
 		medias = self.data.mean(axis=0)
 		desv = self.data.std(axis=0)
 		self.data_st = (self.data-medias)/desv
+		return self.data_st
