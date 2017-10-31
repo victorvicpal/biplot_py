@@ -42,3 +42,22 @@ class biplotpy:
 		self.EV = np.power(Sigma,2)
 		self.Inertia = self.EV/np.sum(self.EV) * 100
 
+	def Contributions(self):
+		U, Sigma, VT = self.SVD()
+		R = U.dot(np.diag(Sigma[:self.dim]))
+		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
+
+		sf = np.sum(np.power(X_st,2),axis=1)
+		cf = np.zeros((n,dim))
+		for k in range(0,dim):
+			cf[:,k] = np.power(R[:,k],2)*100/sf
+
+		sc = np.sum(np.power(X_st,2),axis=0)
+		cc = np.zeros((p,dim))
+
+		for k in range(0,dim):
+			cc[:,k] = np.power(C[:,k],2)*100/sc
+
+		self.RowContributions = cf
+		self.ColContributions = cc
+
