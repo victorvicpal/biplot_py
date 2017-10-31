@@ -31,10 +31,9 @@ class biplotpy:
 		self.data_st = (self.data-medias)/desv
 		return self.data_st
 
-	def SVD(self.data,n_iter=5,random_state=None,std=True):
+	def SVD(self,n_iter=5,random_state=None,std=True):
 		if std==True:
 			self.data = self.standardize()
-
 		U, Sigma, VT = randomized_svd(self.data, n_components=dim,n_iter,random_state)
 		return U, Sigma, VT
 
