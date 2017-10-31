@@ -34,6 +34,6 @@ class biplotpy:
 	def SVD(self,n_iter=5,random_state=None,std=True):
 		if std==True:
 			self.data = self.standardize()
-		U, Sigma, VT = randomized_svd(self.data, n_components=dim,n_iter,random_state)
+		U, Sigma, VT = randomized_svd(self.data, n_components=self.dim,n_iter,random_state)
 		return U, Sigma, VT
 
