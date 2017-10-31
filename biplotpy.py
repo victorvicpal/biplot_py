@@ -29,33 +29,42 @@ class biplotpy:
 		medias = self.data.mean(axis=0)
 		desv = self.data.std(axis=0)
 		self.data_st = (self.data-medias)/desv
-		return self.data_st
 
 	def SVD(self,niter=5,state=None,std=True):
 		if std==True:
-			self.data = self.standardize()
-		U, Sigma, VT = randomized_svd(self.data, n_components=self.dim,n_iter=niter,random_state=state)
+			self.standardize()
+			data_int = self.data_st
+		else:
+			data_int = self.data
+		
+		U, Sigma, VT = randomized_svd(data_int, n_components=self.dim,n_iter=niter,random_state=state)
 		return U, Sigma, VT
 
-	def Inertia(self):
-		U, Sigma, VT = self.SVD()
+	def Inertia(self,std=True):
+		U, Sigma, VT = self.SVD(std=std)
 		self.EV = np.power(Sigma,2)
 		self.Inertia = self.EV/np.sum(self.EV) * 100
 
-	def Contributions(self):
-		U, Sigma, VT = self.SVD()
+	def Contributions(self,std=True):
+		if std==True:
+			self.standardize()
+			data_int = self.data_st
+		else:
+			data_int = self.data
+
+		U, Sigma, VT = self.SVD(std=std)
 		R = U.dot(np.diag(Sigma[:self.dim]))
 		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
 
-		sf = np.sum(np.power(X_st,2),axis=1)
-		cf = np.zeros((n,dim))
-		for k in range(0,dim):
+		sf = np.sum(np.power(,2),axis=1)
+		cf = np.zeros((self.n,self.dim))
+		for k in range(0,self.dim):
 			cf[:,k] = np.power(R[:,k],2)*100/sf
 
-		sc = np.sum(np.power(X_st,2),axis=0)
-		cc = np.zeros((p,dim))
+		sc = np.sum(np.power(data_int,2),axis=0)
+		cc = np.zeros((self.p,self.dim))
 
-		for k in range(0,dim):
+		for k in range(0,self.dim):
 			cc[:,k] = np.power(C[:,k],2)*100/sc
 
 		self.RowContributions = cf
