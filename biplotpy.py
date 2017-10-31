@@ -86,8 +86,7 @@ class biplotpy:
 		self.R = R*scf
 		self.C = C/scf
 
-	def bip_plot(self,std=True,dim1=1,dim2=2,size1=20,
-				size2=20,labels,warrow=0.07,fsize=20,col_names):
+	def bip_plot(self,std=True,dim1=1,dim2=2,size1=20,size2=20,labels,warrow=0.07,fsize=20,col_names):
 		self.biplot()
 		fig = plt.figure(figsize=(size1,size2))
 		ax1 = fig.add_subplot(111)
