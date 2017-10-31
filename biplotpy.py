@@ -15,11 +15,11 @@ class biplotpy:
 		if isinstance(dim, (int, long, float)):
 			self.dim = dim
 		else:
-			raise Exception('not numeric')
+			raise ValueError('not numeric')
 		if (alpha>=0 and alpha<=1):
 			self.alpha = alpha
 		else:
-			raise Exception('not between 0 and 1')
+			raise ValueError('not between 0 and 1')
 		self.p = self.data.shape[1] #elements
 		self.n = self.data.shape[0] #variables
 
