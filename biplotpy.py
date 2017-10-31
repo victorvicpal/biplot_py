@@ -86,4 +86,17 @@ class biplotpy:
 		self.R = R*scf
 		self.C = C/scf
 
+	def bip_plot(self,std=True,dim1=1,dim2=2,size1=20,
+				size2=20,labels,warrow=0.07,fsize=20,col_names):
+		self.biplot()
+		fig = plt.figure(figsize=(size1,size2))
+		ax1 = fig.add_subplot(111)
+
+		ax1.scatter(self.R[:,dim1-1],self.R[:,dim2-1],c=labels)
+		for i in range(0,self.C.shape[0]):
+			ax1.arrow(0,0,self.C[i,dim1-1],self.C[i,dim2-1],width=warrow)
+			ax1.text(self.C[i,0],self.C[i,1],col_names[i],fontsize=fsize)
+
+		plt.show()
+
 
