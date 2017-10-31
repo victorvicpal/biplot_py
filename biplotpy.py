@@ -56,7 +56,7 @@ class biplotpy:
 		R = U.dot(np.diag(Sigma[:self.dim]))
 		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
 
-		sf = np.sum(np.power(,2),axis=1)
+		sf = np.sum(np.power(data_int,2),axis=1)
 		cf = np.zeros((self.n,self.dim))
 		for k in range(0,self.dim):
 			cf[:,k] = np.power(R[:,k],2)*100/sf
