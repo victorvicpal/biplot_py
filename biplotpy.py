@@ -23,5 +23,5 @@ class biplotpy:
 		self.data_st = (self.data-medias)/desv
 		return self.data_st
 
-	def SVD(self.data):
+	#def SVD(self.data):
 
