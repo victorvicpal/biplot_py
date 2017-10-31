@@ -34,10 +34,9 @@ class biplotpy:
 	def SVD(self,niter=5,state=None,std=True):
 		if std==True:
 			self.data = self.standardize()
-		U, Sigma, VT = randomized_svd(self.data, n_components=self.dim,n_iter=niter,random_state=state)
-		return U, Sigma, VT
+		self.U, self.Sigma, self.VT = randomized_svd(self.data, n_components=self.dim,n_iter=niter,random_state=state)
 
 	def Inertia(self):
-		self.EV = np.power(self.SVD.Sigma,2)
-		self.Inertia = EV/np.sum(self.SVD.EV) * 100
+		self.EV = np.power(self.Sigma,2)
+		self.Inertia = EV/np.sum(EV) * 100
 
