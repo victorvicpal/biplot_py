@@ -12,7 +12,7 @@ class biplotpy:
 
 	def __init__(self, data,dim,alpha = 1):
 		self.data = data
-		if isinstance(dim, (int, long, float)):
+		if isinstance(dim, (int, float)):
 			self.dim = dim
 		else:
 			raise ValueError('not numeric')
