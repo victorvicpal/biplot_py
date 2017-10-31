@@ -34,7 +34,8 @@ class biplotpy:
 	def SVD(self,niter=5,state=None,std=True):
 		if std==True:
 			self.data = self.standardize()
-		return U, Sigma, VT = randomized_svd(self.data, n_components=self.dim,n_iter=niter,random_state=state)
+		U, Sigma, VT = randomized_svd(self.data, n_components=self.dim,n_iter=niter,random_state=state)
+		return U, Sigma, VT
 
 	def Inertia(self):
 		U, Sigma, VT = self.SVD()
