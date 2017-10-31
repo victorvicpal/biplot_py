@@ -70,3 +70,20 @@ class biplotpy:
 		self.RowContributions = cf
 		self.ColContributions = cc
 
+	def biplot(self,std=True):
+		U, Sigma, VT = self.SVD(std=std)
+
+		R = U.dot(np.diag(Sigma[:self.dim]))
+		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
+
+		R = R.dot(np.diag(np.power(Sigma,self.alpha)))
+		C = C.dot(np.diag(np.power(Sigma,1-self.alpha)))
+
+		sca = np.sum(np.power(R,2))/n
+		scb = np.sum(np.power(C,2))/p
+		scf = np.sqrt(np.sqrt(scb/sca))
+
+		self.R = R*scf
+		self.C = C/scf
+
+
