@@ -12,11 +12,10 @@ class biplotpy:
 
 	def __init__(self, data,dim,alpha = 1):
 		self.data = data
-		try:
-			dim == int(dim)
-		except ValueError:
-			pass  # not an int.
-		self.dim = dim
+		if !dim.isdigit():
+			raise Exception('not numeric')
+		else:
+			self.dim = dim
 		self.alpha = alpha
 		self.p = self.data.shape[1] #elements
 		self.n = self.data.shape[0] #variables
