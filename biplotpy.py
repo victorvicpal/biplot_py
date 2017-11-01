@@ -4,10 +4,12 @@ import pandas as pd
 import numpy as np
 from sklearn.utils.extmath import randomized_svd
 import matplotlib.pyplot as plt
+from scipy import stats
 
 class biplotpy:
 	'''
 	Gabriel Biplots
+	Canonical Biplot
 	'''
 
 	def __init__(self, data,dim,alpha = 1):
@@ -108,5 +110,71 @@ class biplotpy:
 		for i in range(0,self.C.shape[0]):
 			ax1.arrow(0,0,self.C[i,dim1-1],self.C[i,dim2-1],width=warrow)
 			ax1.text(self.C[i,0],self.C[i,1],col_names[i],fontsize=fosize)
-
 		plt.show()
+
+	def CanonicalBip(self,GroupNames,y,std=True):
+		if isinstance(GroupNames, (list)):
+			self.GroupNames = GroupNames
+		else:
+			raise ValueError('not numeric')
+
+		if isinstance(y, (np.ndarray)):
+			self.target = y
+		else:
+			raise ValueError('not numeric')
+
+		if std==True:
+			self.standardize()
+			data = self.data_st
+		else:
+			data = self.data
+
+		g = len(GroupNames)
+		n = data.shape[0]
+		m = data.shape[1]
+		r = np.min(np.array([g - 1, m]))
+
+		def Factor2Binary(y,Name = None):
+			if Name == None:
+				Name = "C"
+			ncat = len(list(set(y)))
+			n = len(y)
+			Z = pd.DataFrame(0, index=np.arange(len(y)), columns=list(set(y)))
+			for col in Z.columns:
+				for i in range (0,n):
+					if y[i] == col:
+						Z[col].iloc[i] = 1
+			return Z
+
+		def matrixsqrt(M,dim,tol=np.finfo(float).eps,inv=True):
+			U, Sigma, VT = randomized_svd(M, n_components=self.dim, n_iter=5, random_state=None)
+			nz = Sigma > tol
+			if inv==True:
+				S12 = U.dot(np.diag(1/np.sqrt(Sigma[nz]))).dot(VT[nz,:])
+			else:
+				S12 = U.dot(np.diag(np.sqrt(Sigma[nz]))).dot(VT[nz,:])
+			return S12
+
+		#Groups to Binary
+		Z = Factor2Binary(y)
+		ng = Z.sum(axis=0)
+		S11 = (Z.T).dot(Z)
+		Xb = np.linalg.inv(S11).dot(Z.T).dot(data)
+		B = (Xb.T).dot(S11).dot(Xb)
+		S = (data.T).dot(data) - B
+		Y = np.power(S11,0.5).dot(Xb).dot(matrixsqrt(S,self.dim,inv=True))
+
+		U, Sigma, VT = randomized_svd(Y, n_components=self.dim, n_iter=5, random_state=None)
+
+		#Variable_Coord
+		H = matrixsqrt(S,self.dim,inv=False).dot(np.transpose(VT[0:r,:]))
+		self.Var_Coord = H
+		#Canonical_Weights
+		B = matrixsqrt(S,self.dim,inv=True).dot(np.transpose(VT[0:r,:]))
+		self.Can_Weights = B
+		#Group_Coord
+		J = Xb.dot(B)
+		self.Group_Coord = J
+		#Individual_Coord
+		V = data.dot(B)
+		self.Ind_Coord = V
