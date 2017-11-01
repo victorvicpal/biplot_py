@@ -30,7 +30,7 @@ class biplotpy:
 		desv = self.data.std(axis=0)
 		self.data_st = (self.data-medias)/desv
 
-	def SVD(self,niter=5,state=None,std=True):
+	def SVD(self,std=True,niter=5,state=None):
 		if std==True:
 			self.standardize()
 			data_int = self.data_st
@@ -41,18 +41,22 @@ class biplotpy:
 		return U, Sigma, VT
 
 	def Inertia(self,std=True):
-		U, Sigma, VT = self.SVD(std=std)
+		if std==True:
+			U, Sigma, VT = self.SVD(std=True)
+		else:
+			U, Sigma, VT = self.SVD(std=False)
+
 		self.EV = np.power(Sigma,2)
 		self.Inertia = self.EV/np.sum(self.EV) * 100
 
 	def Contributions(self,std=True):
 		if std==True:
-			self.standardize()
+			U, Sigma, VT = self.SVD(std=True)
 			data_int = self.data_st
 		else:
+			U, Sigma, VT = self.SVD(std=False)
 			data_int = self.data
 
-		U, Sigma, VT = self.SVD(std=std)
 		R = U.dot(np.diag(Sigma[:self.dim]))
 		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
 
@@ -71,7 +75,14 @@ class biplotpy:
 		self.ColContributions = cc
 
 	def biplot(self,std=True):
-		U, Sigma, VT = self.SVD(std=std)
+		if std==True:
+			U, Sigma, VT = self.SVD(std=True)
+			self.Contributions(std=True)
+			self.Inertia(std=True)
+		else:
+			U, Sigma, VT = self.SVD(std=False)
+			self.Contributions(std=False)
+			self.Inertia(std=False)
 
 		R = U.dot(np.diag(Sigma[:self.dim]))
 		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
@@ -86,16 +97,16 @@ class biplotpy:
 		self.R = R*scf
 		self.C = C/scf
 
-	def plot_bip(self,col_names,labels,std=True,dim1=1,dim2=2,size1=20,size2=20,warrow=0.07,fsize=20):
-		self.biplot(std)
-		fig = plt.figure(figsize=(size1,size2))
+	def plot_bip(self,col_names,labels,std=True,dim1=1,dim2=2,fisize=None,warrow=0.07,fosize=20):
+		if fisize==None:
+			fisize = self.R[:,[dim1-1,dim2-1]].max(axis=0).max()
+
+		fig = plt.figure(figsize=(fisize,fisize))
 		ax1 = fig.add_subplot(111)
 
 		ax1.scatter(self.R[:,dim1-1],self.R[:,dim2-1],c=labels)
 		for i in range(0,self.C.shape[0]):
 			ax1.arrow(0,0,self.C[i,dim1-1],self.C[i,dim2-1],width=warrow)
-			ax1.text(self.C[i,0],self.C[i,1],col_names[i],fontsize=fsize)
+			ax1.text(self.C[i,0],self.C[i,1],col_names[i],fontsize=fosize)
 
 		plt.show()
-
-
