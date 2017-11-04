@@ -5,13 +5,14 @@ import matplotlib.pyplot as plt
 from scipy import stats
 
 def standardize(data,method=None):
+	global data_stan
 	if method == None:
-		data_st = data_st
+		data_stan = data
 	if method == "column standardize":
 		medias = data.mean(axis=0)
 		desv = data.std(axis=0)
-		data_st = (data-medias)/desv
-	return data_st
+		data_stan = (data-medias)/desv
+	return data_stan
 
 def SVD(M,dimen,niter=5,state=None):
 	U, Sigma, VT = randomized_svd(M, n_components=dimen,n_iter=niter,random_state=state)
@@ -41,3 +42,24 @@ def Contributions(M,dimen,n,p,niter=5,state=None):
 		cc[:,k] = np.power(C[:,k],2)*100/sc
 
 	return cf, cc
+
+def Factor2Binary(y,Name = None):
+	if Name == None:
+		Name = "C"
+	ncat = len(list(set(y)))
+	n = len(y)
+	Z = pd.DataFrame(0, index=np.arange(len(y)), columns=list(set(y)))
+	for col in Z.columns:
+		for i in range (0,n):
+			if y[i] == col:
+				Z[col].iloc[i] = 1
+	return Z
+
+def matrixsqrt(M,dim,tol=np.finfo(float).eps,inv=True):
+	U, Sigma, VT = randomized_svd(M, n_components=dim, n_iter=5, random_state=None)
+	nz = Sigma > tol
+	if inv==True:
+		S12 = U.dot(np.diag(1/np.sqrt(Sigma[nz]))).dot(VT[nz,:])
+	else:
+		S12 = U.dot(np.diag(np.sqrt(Sigma[nz]))).dot(VT[nz,:])
+	return S12
