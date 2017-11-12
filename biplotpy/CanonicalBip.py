@@ -7,13 +7,11 @@ class CanonicalBip(object):
 
 	def __init__(self, data,dim,GroupNames,y):
 		self.data = data
-		self.p = self.data.shape[1] #elements
-		self.n = self.data.shape[0] #variables
 		if isinstance(dim, (int, float)):
 			self.dim = dim
 		else:
 			raise ValueError('not numeric')
-		if self.dim>self.p:
+		if self.dim>self.data.shape[1]:
 			raise ValueError('dim bigger than p')
 		if isinstance(GroupNames, (list)):
 			self.GroupNames = GroupNames
@@ -29,8 +27,8 @@ class CanonicalBip(object):
 		self.data_st = standardize(self.data,meth=method)
 		data_std = self.data_st
 		g = len(self.GroupNames)
-		n = self.n
-		m = self.p
+		n = self.data.shape[0]
+		m = self.data.shape[1]
 		r = np.min(np.array([g - 1, m]))
 
 		#Groups to Binary

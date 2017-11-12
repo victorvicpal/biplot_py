@@ -7,13 +7,11 @@ class ClassicBip(object):
 
 	def __init__(self, data,dim,alpha = 1):
 		self.data = data
-		self.p = self.data.shape[1] #elements
-		self.n = self.data.shape[0] #variables
 		if isinstance(dim, (int, float)):
 			self.dim = dim
 		else:
 			raise ValueError('not numeric')
-		if self.dim>self.p:
+		if self.dim>self.data.shape[1]:
 			raise ValueError('dim bigger than p')
 		if (alpha>=0 and alpha<=1):
 			self.alpha = alpha
@@ -25,7 +23,7 @@ class ClassicBip(object):
 		U, Sigma, VT = SVD(self.data_st,self.dim,niter,state)
 
 		self.EV, self.Inert = Inertia(self.data_st,self.dim,niter,state)
-		self.RowCont, self.ColCont = Contributions(self.data_st,self.dim,self.n,self.p,niter,state)
+		self.RowCont, self.ColCont = Contributions(self.data_st,self.dim,self.data.shape[0],self.data.shape[1],niter,state)
 
 		R = U.dot(np.diag(Sigma[:self.dim]))
 		C = np.transpose(VT).dot(np.diag(Sigma[:self.dim]))
@@ -33,8 +31,8 @@ class ClassicBip(object):
 		R = R.dot(np.diag(np.power(Sigma,self.alpha)))
 		C = C.dot(np.diag(np.power(Sigma,1-self.alpha)))
 
-		sca = np.sum(np.power(R,2))/self.n
-		scb = np.sum(np.power(C,2))/self.p
+		sca = np.sum(np.power(R,2))/self.data.shape[0]
+		scb = np.sum(np.power(C,2))/self.data.shape[1]
 		scf = np.sqrt(np.sqrt(scb/sca))
 
 		self.RowCoord = R*scf
