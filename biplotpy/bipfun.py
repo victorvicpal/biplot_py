@@ -4,11 +4,11 @@ from sklearn.utils.extmath import randomized_svd
 import matplotlib.pyplot as plt
 from scipy import stats
 
-def standardize(data,method=None):
+def standardize(data,meth=None):
 	global data_stan
-	if method == None:
+	if meth == None:
 		data_stan = data
-	if method == "column standardize":
+	if meth == 1:
 		medias = data.mean(axis=0)
 		desv = data.std(axis=0)
 		data_stan = (data-medias)/desv

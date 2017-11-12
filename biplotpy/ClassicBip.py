@@ -3,7 +3,6 @@ from bipfun import *
 class ClassicBip(object):
 	'''
 	Gabriel Biplots
-	Canonical Biplot
 	'''
 
 	def __init__(self, data,dim,alpha = 1):
@@ -22,7 +21,7 @@ class ClassicBip(object):
 			raise ValueError('not between 0 and 1')
 
 	def biplot(self,method=None,niter=5,state=None):
-		self.data_st = standardize(self.data,method)
+		self.data_st = standardize(self.data,meth=method)
 		U, Sigma, VT = SVD(self.data_st,self.dim,niter,state)
 
 		self.EV, self.Inert = Inertia(self.data_st,self.dim,niter,state)
