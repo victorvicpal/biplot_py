@@ -1,18 +1,30 @@
 from bipfun import *
+import pandas
+import numpy
 
 class ClassicBip(object):
 	'''
 	Gabriel Biplots
 	'''
 
-	def __init__(self, data,dim,alpha = 1):
-		self.data = data
+	def __init__(self, data, dim, alpha = 1):
+		if isinstance(data , pandas.core.frame.DataFrame):
+			self.col_names = list(data.columns)
+			self.data = data.as_matrix()
+		elif isinstance(data , numpy.ndarray):
+			self.col_names = ['Var_'+str(i+1) for i in range(data.shape[1])]
+			self.data = data
+		else:
+			raise ValueError('not pandas DataFrame nor numpy ndarray')
+
 		if isinstance(dim, (int, float)):
 			self.dim = dim
 		else:
 			raise ValueError('not numeric')
+
 		if self.dim > self.data.shape[1]:
 			raise ValueError('dim bigger than p')
+
 		if (alpha>=0 and alpha<=1):
 			self.alpha = alpha
 		else:

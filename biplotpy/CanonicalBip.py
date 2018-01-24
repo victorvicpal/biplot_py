@@ -1,4 +1,6 @@
 from bipfun import *
+import pandas
+import numpy
 
 class CanonicalBip(object):
 	'''
@@ -6,7 +8,15 @@ class CanonicalBip(object):
 	'''
 
 	def __init__(self, data,dim,GroupNames,y):
-		self.data = data
+		if isinstance(data , pandas.core.frame.DataFrame):
+			self.col_names = list(data.columns)
+			self.data = data.as_matrix()
+		elif isinstance(data , numpy.ndarray):
+			self.col_names = ['Var_'+str(i+1) for i in range(data.shape[1])]
+			self.data = data
+		else:
+			raise ValueError('not pandas DataFrame nor numpy ndarray')
+
 		if isinstance(dim, (int, float)):
 			self.dim = dim
 		else:
