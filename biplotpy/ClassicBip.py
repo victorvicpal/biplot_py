@@ -11,7 +11,7 @@ class ClassicBip(object):
 			self.dim = dim
 		else:
 			raise ValueError('not numeric')
-		if self.dim>self.data.shape[1]:
+		if self.dim > self.data.shape[1]:
 			raise ValueError('dim bigger than p')
 		if (alpha>=0 and alpha<=1):
 			self.alpha = alpha

@@ -23,7 +23,7 @@ class CanonicalBip(object):
 		else:
 			raise ValueError('not list')
 
-	def CanonicalBip(self,method=None,niter=5,state=None):
+	def CanonicalBip(self,method=None,niter=5,state=0):
 		self.data_st = standardize(self.data,meth=method)
 		data_std = self.data_st
 		g = len(self.GroupNames)
@@ -34,7 +34,7 @@ class CanonicalBip(object):
 		#Groups to Binary
 		Z = Factor2Binary(self.target)
 		ng = Z.sum(axis=0)
-		S11 = (Z.T).dot(Z)
+		S11 = (Z.T).dot(Z).as_matrix()
 		Xb = np.linalg.inv(S11).dot(Z.T).dot(data_std)
 		B = (Xb.T).dot(S11).dot(Xb)
 		S = (data_std.T).dot(data_std) - B
@@ -79,7 +79,7 @@ class CanonicalBip(object):
 
 		Wilksf = (1 - np.power(pillai,1/t))/(np.power(pillai,1/t)) * (df2/df1)
 		Wilksp = stats.f.pdf(Wilksf, df1, df2)
-		self.Wilks = [['f-val',Wilksf],['p-val',Wilksp]]
+		self.Wilks = {'f-val': Wilksf,'p-val': Wilksp}
 
 		falfau = stats.t.ppf(1 - (0.025), (n - g))
 		falfab = stats.t.ppf(1 - (0.025/(g * m)), (n - g))
@@ -91,5 +91,5 @@ class CanonicalBip(object):
 		MultRad = falfam * np.diag(np.linalg.inv(np.sqrt(S11)))/np.sqrt(n - g)
 		ChisRad = falfac * np.diag(np.linalg.inv(np.sqrt(S11)))/np.sqrt(n - g)
 
-		self.Radius = [['Uni',UnivRad],['Bonf',BonfRad],['Mult',MultRad],['Chis',ChisRad]]
+		self.Radius = {'Uni': UnivRad,'Bonf': BonfRad, 'Mult': MultRad, 'Chis': ChisRad}
 

@@ -14,7 +14,7 @@ def standardize(data,meth=None):
 		data_stan = (data-medias)/desv
 	return data_stan
 
-def SVD(M,dimen,niter=5,state=None):
+def SVD(M,dimen,niter=5,state=0):
 	U, Sigma, VT = randomized_svd(M, n_components=dimen,n_iter=niter,random_state=state)
 	return U, Sigma, VT
 
