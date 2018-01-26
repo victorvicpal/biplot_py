@@ -60,10 +60,10 @@ class CanonicalBip(object):
 		self.Can_Weights = B
 		#Group_Coord
 		J = Xb.dot(B)
-		self.Group_Coord = J
+		self.Group_Coord = J*1.4
 		#Individual_Coord
 		V = data_std.dot(B)
-		self.Ind_Coord = V
+		self.Ind_Coord = V*1.4
 
 		sct = np.diag((V.T).dot(V))
 		sce = np.diag((J.T).dot(S11).dot(J))
