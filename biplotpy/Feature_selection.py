@@ -9,7 +9,7 @@ class Feature_selection(object):
 	Feature selection for classification problems
 	'''
 
-	def __init__(self, bip, target, thr_dis = 75, thr_corr = 0.89):
+	def __init__(self, bip, target, thr_dis = 75, thr_corr = 0.89, type_cor = "global"):
 		if isinstance(bip, ClassicBip.ClassicBip):
 			__type__ = "Classic"
 			self.bip = bip
@@ -21,13 +21,13 @@ class Feature_selection(object):
 
 		if isinstance(target, pandas.core.series.Series):
 			if isinstance(list(set([type(el) for el in target]))[0], (int,float)):
-				self.y = target
+				self.y = numpy.array(target)
 		elif isinstance(target, numpy.ndarray):
 			self.y = target
 		else:
 			raise ValueError('Nor ndarray numpy nor series pandas type')
 
-		if !isinstance(thr_dis, float):
+		if isinstance(thr_dis, (float,int)) == False:
 			raise ValueError('Nor ndarray numpy nor series pandas type')
 		elif thr_dis > 100 :
 			raise ValueError('thr_dis must be between 25 and 100')
@@ -35,27 +35,27 @@ class Feature_selection(object):
 			raise ValueError('thr_dis must be positive')
 
 		if __type__ == "Classic":
-			Proj = bip.RowCoord.dot(bip.ColCoord.T)
+			Project = bip.RowCoord.dot(bip.ColCoord.T)
 			C = bip.ColCoord
 		elif __type__ == "Canonical":
-			Proj = bip.Ind_Coord.dot(bip.Var_Coord.T)
+			Project = bip.Ind_Coord.dot(bip.Var_Coord.T)
 			C = bip.Var_Coord
 
 		# Positive rescalation of projections
 
-		v_min = np.array([abs(el) if el < 0 else el for el in Project.min(axis=0)])
+		v_min = numpy.array([abs(el) if el < 0 else el for el in Project.min(axis=0)])
 
 		for i, proj in enumerate(Project.T):
 			Project[:,i] = proj + v_min[i]
 		
-		classes = numpy.unique(y)
+		classes = numpy.unique(target)
 
 		# Tracking class index
 
 		IND = []
 		for cl in classes:
 			ind_class = []
-			for i, el in enumerate(y):
+			for i, el in enumerate(target):
 				if el == cl:
 						ind_class.append(i)
 			IND.append(ind_class)
@@ -64,34 +64,50 @@ class Feature_selection(object):
 
 		num_c = int(len(classes)*(len(classes)-1)/2)
 
-		Disc = np.zeros((bip.data.shape[1], num_c))
+		Disc = numpy.zeros((bip.data.shape[1], num_c))
 
-		comb = np.array(list(itertools.combinations(classes,r=2)))
+		self.Disc = Disc
+
+		comb = numpy.array(list(itertools.combinations(classes,r=2)))
 
 		# Disc vectors
 
 		for i, cmb in enumerate(comb):
 			Disc[:,i] = abs(Project[IND[cmb[0]]].mean(axis=0) - Project[IND[cmb[1]]].mean(axis=0))
 
-		Corr_mat = numpy.tril(numpy.corrcoef(C), -1)
+		if type_cor == "global":
+			Corr_matr = numpy.tril(numpy.corrcoef(bip.data.T), -1)
+		elif type_cor == "coord":
+			Corr_matr = numpy.tril(numpy.corrcoef(C), -1)
+		else:
+			raise ValueError('type_cor must be "global" or "coord"')
+
+		self.Corr_matr = Corr_matr
 
 		# Drop correlated variables
 
 		POS = []
 		for v in Disc.T:
 			for i, el in enumerate(v):
-				if el > np.percentile(thr_dis, 75):
+				if el > numpy.percentile(v, thr_dis):
 					POS.append(i)
 		POS = list(set(POS))
 
-		pos_corr = np.where(Corr_matr>thr_corr)
+		self.POS_not = POS
+
+		pos_corr = numpy.where(Corr_matr>thr_corr)
 		disc_vect = Disc.sum(axis = 1)
 
-		for i in range(len(pos_corr[0])):
-			a = np.array([disc_vect[pos_corr[0][i]],disc_vect[pos_corr[1][i]]])
-			POS.pop(POS.index(pos_corr[ np.argwhere(a.min() == a)[0][0] ][0]))
+		self.disc_vect = disc_vect
 
-		self.var_sel = bip.col_names[POS]
+		del_el = []
+		for i in range(len(pos_corr[0])):
+			ind = [pos_corr[0][i],pos_corr[1][i]]
+			if (ind[0] in POS) and (ind[1] in POS):
+				a = numpy.array([disc_vect[ind[0]],disc_vect[ind[1]]])
+				POS.pop(POS.index(pos_corr[ numpy.argwhere(a.min() == a)[0][0] ][0]))
+
+		self.var_sel = list(numpy.array(bip.col_names)[POS])
 
 
 

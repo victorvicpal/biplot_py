@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy
+import pandas
 import ClassicBip
 import CanonicalBip
 
@@ -17,7 +18,7 @@ class plot(object):
 			raise ValueError('Undefined biplotpy class')
 
 		if __type__ == 'Classic':
-			if isinstance(target, (numpy.ndarray, list)):
+			if isinstance(target, (numpy.ndarray, list, pandas.core.series.Series)):
 				fig = plt.figure(figsize=(figx,figy))
 				ax1 = fig.add_subplot(111)
 
