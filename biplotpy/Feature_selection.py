@@ -95,7 +95,7 @@ class Feature_selection(object):
 
 		self.POS_not = POS
 
-		pos_corr = numpy.where(Corr_matr>thr_corr)
+		pos_corr = numpy.where(Corr_matr > thr_corr)
 		disc_vect = Disc.sum(axis = 1)
 
 		self.disc_vect = disc_vect
@@ -103,9 +103,14 @@ class Feature_selection(object):
 		del_el = []
 		for i in range(len(pos_corr[0])):
 			ind = [pos_corr[0][i],pos_corr[1][i]]
-			if (ind[0] in POS) and (ind[1] in POS):
+			ind_del = []
+			if ((ind[0] in POS) and (ind[1] in POS)):
 				a = numpy.array([disc_vect[ind[0]],disc_vect[ind[1]]])
-				POS.pop(POS.index(pos_corr[ numpy.argwhere(a.min() == a)[0][0] ][0]))
+				ind_del.append(POS.index(pos_corr[ numpy.argwhere(a.min() == a)[0][0] ][0]))
+
+		ind_del = list(set(ind_del))
+		for ind in ind_del:
+			POS.pop(ind)
 
 		self.var_sel = list(numpy.array(bip.col_names)[POS])
 
