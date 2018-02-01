@@ -66,8 +66,6 @@ class Feature_selection(object):
 
 		Disc = numpy.zeros((bip.data.shape[1], num_c))
 
-		self.Disc = Disc
-
 		comb = numpy.array(list(itertools.combinations(classes,r=2)))
 
 		# Disc vectors
@@ -75,14 +73,7 @@ class Feature_selection(object):
 		for i, cmb in enumerate(comb):
 			Disc[:,i] = abs(Project[IND[cmb[0]]].mean(axis=0) - Project[IND[cmb[1]]].mean(axis=0))
 
-		if type_cor == "global":
-			Corr_matr = numpy.tril(numpy.corrcoef(bip.data.T), -1)
-		elif type_cor == "coord":
-			Corr_matr = numpy.tril(numpy.corrcoef(C), -1)
-		else:
-			raise ValueError('type_cor must be "global" or "coord"')
-
-		self.Corr_matr = Corr_matr
+		self.Disc = Disc
 
 		# Drop correlated variables
 
@@ -95,22 +86,52 @@ class Feature_selection(object):
 
 		self.POS_not = POS
 
+
+		if type_cor == "global":
+			Corr_matr = numpy.tril(numpy.corrcoef(bip.data[:,POS].T), -1)
+		elif type_cor == "coord":
+			Corr_matr = numpy.tril(numpy.corrcoef(C[POS,:]), -1)
+		elif type_cor == "discr":
+			Corr_matr = numpy.tril(numpy.corrcoef(Disc[POS,:]), -1)
+		else:
+			raise ValueError('type_cor must be "global", "coord" or "discr"')
+
+		self.Corr_matr = Corr_matr
+
+		### Correlation threshold (23/01/2018)
+
+		#pos_corr = numpy.where(Corr_matr > thr_corr)
+		#disc_vect = Disc.sum(axis = 1)
+
+		#self.disc_vect = disc_vect
+
+		#del_el = []
+		#if pos_corr:
+		#	for i in range(len(pos_corr[0])):
+		#		ind = [pos_corr[0][i],pos_corr[1][i]]
+		#		ind_del = []
+		#		if ((ind[0] in POS) and (ind[1] in POS)):
+		#			a = numpy.array([disc_vect[ind[0]],disc_vect[ind[1]]])
+		#			ind_del.append(POS.index(pos_corr[ numpy.argwhere(a.min() == a)[0][0] ][0]))
+
+		### Correlation threshold (01/02/2018)
+
+
 		pos_corr = numpy.where(Corr_matr > thr_corr)
-		disc_vect = Disc.sum(axis = 1)
+		disc_vect = Disc[POS,:].sum(axis = 1)
 
-		self.disc_vect = disc_vect
+		ind_del = []
+		if pos_corr:
+			for i in range(len(pos_corr[0])):
+				if disc_vect[pos_corr[0][i]] > disc_vect[pos_corr[1][i]]:
+					ind_del.append(pos_corr[1][i])
+				else:
+					ind_del.append(pos_corr[0][i])
 
-		del_el = []
-		for i in range(len(pos_corr[0])):
-			ind = [pos_corr[0][i],pos_corr[1][i]]
-			ind_del = []
-			if ((ind[0] in POS) and (ind[1] in POS)):
-				a = numpy.array([disc_vect[ind[0]],disc_vect[ind[1]]])
-				ind_del.append(POS.index(pos_corr[ numpy.argwhere(a.min() == a)[0][0] ][0]))
 
 		ind_del = list(set(ind_del))
-		for ind in ind_del:
-			POS.pop(ind)
+		if ind_del:
+			POS = [el for i, el in enumerate(POS) if i not in ind_del]
 
 		self.var_sel = list(numpy.array(bip.col_names)[POS])
 
