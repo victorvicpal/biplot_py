@@ -84,7 +84,7 @@ class Feature_selection(object):
 			target = numpy.delete(target, (outliers), axis=0)
 
 			if  perc_drop > 5.5:
-				warnings.warn("You're dropping %s\%  of the data. Try to increase 'whisk'" % perc_drop)
+				warnings.warn(("You're dropping %s of the data. Try to increase 'whisk'" % perc_drop))
 
 
 		# Tracking class index
